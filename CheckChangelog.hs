@@ -1,6 +1,7 @@
 {- A Git pre-commit hook for ensuring that Changelog has been updated. -}
 
 import System.Process
+import System.Exit
 import System.IO
 import Data.List
 
@@ -42,8 +43,9 @@ main = do
     changes <- getStagedChanges stdout'
     let changeLogDefined = changelogInStaged changes
     if not changeLogDefined then do
+        hPutStrLn stderr "Changelog not staged!"
         _cleanUp stdin' stdout' stderr'
-        error "Changelog not staged!"
+        exitWith (ExitFailure 1)
     else do
         _cleanUp stdin' stdout' stderr'
         return()
