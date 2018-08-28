@@ -1,3 +1,6 @@
+module CheckDartAnalyzer
+    ( performCheck
+    ) where
 {- A Git commit hook for ensuring that no errors were found by dart_analyzer.
 
 This is more specifically for AngularDart projects.  It expects there to be
@@ -45,8 +48,8 @@ _errorMessage problems =
     in
         "DartAnalyzer: " ++ dartMessage
 
-main :: IO ()
-main = do
+performCheck :: IO ()
+performCheck = do
     (stdin', stdout', stderr', _) <- runInteractiveCommand dartAnalyzerCommand
     problems <- getProblems stdout'
     let problemFree = isProblemFree problems

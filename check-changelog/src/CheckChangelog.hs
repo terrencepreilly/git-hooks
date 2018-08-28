@@ -1,8 +1,12 @@
 {- A Git pre-commit hook for ensuring that Changelog has been updated. -}
 
-import System.Process
-import System.Exit
+module CheckChangelog
+    ( performCheck
+    ) where
+
 import System.IO
+import System.Exit
+import System.Process
 import Data.List
 
 gitCommand :: String
@@ -30,22 +34,22 @@ changelogInStaged (x:xs) =
     then True
     else changelogInStaged xs
 
-_cleanUp :: Handle -> Handle -> Handle -> IO ()
-_cleanUp stdin' stdout' stderr' = do
+cleanUp :: Handle -> Handle -> Handle -> IO ()
+cleanUp stdin' stdout' stderr' = do
     hClose stdin'
     hClose stdout'
     hClose stderr'
     return ()
 
-main :: IO ()
-main = do
+performCheck :: IO ()
+performCheck = do
     (stdin', stdout', stderr', _) <- runInteractiveCommand gitCommand
     changes <- getStagedChanges stdout'
     let changeLogDefined = changelogInStaged changes
     if not changeLogDefined then do
         hPutStrLn stderr "Changelog not staged!"
-        _cleanUp stdin' stdout' stderr'
+        cleanUp stdin' stdout' stderr'
         exitWith (ExitFailure 1)
     else do
-        _cleanUp stdin' stdout' stderr'
+        cleanUp stdin' stdout' stderr'
         return()
